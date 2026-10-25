@@ -31,12 +31,15 @@ export const metadata: Metadata = {
   authors: [{ name: "Shah Md. Mahi", url: "https://shahmdmahi.dpdns.org" }],
   creator: "Shah Md. Mahi",
   publisher: "Shah Md. Mahi",
-  metadataBase: new URL("https://shahmdmahi.dpdns.org"),
+  metadataBase: new URL("https://omnidrop.shahmdmahi.dpdns.org"),
+  alternates: {
+    canonical: "https://omnidrop.shahmdmahi.dpdns.org",
+  },
   openGraph: {
     title: "OmniDrop | Ultra-High-Throughput Multi-Path P2P Mesh Fabric",
     description:
       "Cross-device file sharing exceeding 1.8 Gbps over local Wi-Fi with zero cloud dependence, zero accounts, and extreme speed.",
-    url: "https://shahmdmahi.dpdns.org",
+    url: "https://omnidrop.shahmdmahi.dpdns.org",
     siteName: "OmniDrop",
     images: [
       {
@@ -65,6 +68,7 @@ const jsonLd = {
     {
       "@type": "SoftwareApplication",
       "name": "OmniDrop",
+      "url": "https://omnidrop.shahmdmahi.dpdns.org",
       "applicationCategory": "NetworkingApplication",
       "operatingSystem": "Linux, macOS, Windows, iOS, Android",
       "offers": {

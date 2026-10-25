@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://shahmdmahi.dpdns.org/sitemap.xml',
+    sitemap: 'https://omnidrop.shahmdmahi.dpdns.org/sitemap.xml',
   };
 }

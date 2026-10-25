@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyomnidrop"
+version = "0.1.0"
+description = "Python client and CLI bindings for OmniDrop: Ultra-High-Throughput Multi-Path P2P Content-Defined Mesh File Fabric"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "Shah Md. Mahi", email = "shahmdmahi15@gmail.com" }
+]
+keywords = ["p2p", "file-transfer", "mesh-networking", "fastcdc", "blake3", "multipath"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: System :: Networking",
+]
+
+[project.urls]
+Homepage = "https://omnidrop.shahmdmahi.dpdns.org"
+Repository = "https://github.com/shahmdmahi15/omnidrop"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pyomnidrop"]
