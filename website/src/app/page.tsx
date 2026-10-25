@@ -31,6 +31,8 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import AuthorSection from "@/components/AuthorSection";
+
 function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -865,119 +867,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         </section>
 
         {/* -------------------- Author & Engineering Leadership -------------------- */}
-        <section id="author" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-800">
-          <div className="max-w-4xl mx-auto glass-panel-glow rounded-3xl p-8 sm:p-12 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-cyan-500/10 to-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
-              <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-cyan-400 via-sky-500 to-indigo-600 p-1 shadow-xl shadow-cyan-500/20 shrink-0">
-                <div className="w-full h-full bg-[#080d18] rounded-[14px] flex items-center justify-center text-4xl font-extrabold text-cyan-400">
-                  SM
-                </div>
-              </div>
-
-              <div className="flex-1 text-center md:text-left">
-                <div className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 mb-2">
-                  Project Founder &amp; Architect
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-1">
-                  Shah Md. Mahi
-                </h3>
-                <p className="text-sm font-medium text-slate-400 mb-4">
-                  Lead Systems Architect &amp; Distributed Networking Engineer
-                </p>
-
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
-                  Specializing in ultra-low-latency distributed systems, asynchronous networking fabrics, content-defined storage deduplication, and zero-trust cryptographic architectures. OmniDrop represents a commitment to open, cloud-independent data sovereignty.
-                </p>
-
-                {/* Contact Badges Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs font-medium">
-                  <a
-                    href="https://shahmdmahi.dpdns.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 transition-all flex items-center gap-2"
-                  >
-                    <Globe className="w-4 h-4 text-cyan-400" />
-                    <span>Website</span>
-                  </a>
-
-                  <a
-                    href="mailto:shahmdmahi15@gmail.com"
-                    className="p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 transition-all flex items-center gap-2"
-                  >
-                    <Mail className="w-4 h-4 text-sky-400" />
-                    <span>Email Me</span>
-                  </a>
-
-                  <a
-                    href="tel:+8801757290258"
-                    className="p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 transition-all flex items-center gap-2"
-                  >
-                    <Phone className="w-4 h-4 text-emerald-400" />
-                    <span>+8801757290258</span>
-                  </a>
-
-                  <a
-                    href="https://github.com/shahmdmahi15"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 transition-all flex items-center gap-2"
-                  >
-                    <GithubIcon className="w-4 h-4 text-slate-300" />
-                    <span>GitHub</span>
-                  </a>
-
-                  <a
-                    href="https://linkedin.com/in/shahmdmahi27"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 transition-all flex items-center gap-2"
-                  >
-                    <LinkedinIcon className="w-4 h-4 text-blue-400" />
-                    <span>LinkedIn</span>
-                  </a>
-
-                  <a
-                    href="https://t.me/shahmdmahi"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 transition-all flex items-center gap-2"
-                  >
-                    <Send className="w-4 h-4 text-sky-400" />
-                    <span>Telegram</span>
-                  </a>
-
-                  <a
-                    href="https://wa.me/8801757290258"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 transition-all flex items-center gap-2"
-                  >
-                    <MessageCircle className="w-4 h-4 text-emerald-400" />
-                    <span>WhatsApp</span>
-                  </a>
-
-                  <a
-                    href="https://facebook.com/shahmdmahi27"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 transition-all flex items-center gap-2"
-                  >
-                    <Share2 className="w-4 h-4 text-blue-500" />
-                    <span>Facebook</span>
-                  </a>
-
-                  <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 flex items-center gap-2 font-mono">
-                    <span className="text-purple-400 font-bold">Discord:</span>
-                    <span>shahmdmahi27</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <AuthorSection />
       </main>
 
       {/* -------------------- Footer -------------------- */}
