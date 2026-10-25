@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="grad-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff" />
+      <stop offset="50%" stop-color="#0099ff" />
+      <stop offset="100%" stop-color="#7000ff" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Hex Shield -->
+  <polygon points="256,32 448,142 448,370 256,480 64,370 64,142" 
+           fill="#0d1424" stroke="url(#grad-cyan)" stroke-width="8" filter="url(#glow)" />
+
+  <!-- Multi-Path Orbit Rings -->
+  <circle cx="256" cy="256" r="160" fill="none" stroke="#00f0ff" stroke-width="2" stroke-dasharray="12,12" opacity="0.4" />
+  <circle cx="256" cy="256" r="110" fill="none" stroke="#7000ff" stroke-width="2" stroke-dasharray="8,8" opacity="0.6" />
+
+  <!-- Central OmniDrop Geometric Monogram -->
+  <path d="M256,120 L340,240 L300,240 L300,320 L212,320 L212,240 L172,240 Z" 
+        fill="url(#grad-cyan)" filter="url(#glow)" />
+
+  <!-- Content Mesh Nodes -->
+  <circle cx="256" cy="96" r="10" fill="#00f0ff" />
+  <circle cx="380" cy="190" r="8" fill="#00f0ff" />
+  <circle cx="380" cy="322" r="8" fill="#7000ff" />
+  <circle cx="256" cy="416" r="10" fill="#00f0ff" />
+  <circle cx="132" cy="322" r="8" fill="#7000ff" />
+  <circle cx="132" cy="190" r="8" fill="#00f0ff" />
+</svg>

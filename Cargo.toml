@@ -1,0 +1,37 @@
+[package]
+name = "omnidrop"
+version = "0.1.0"
+edition = "2021"
+authors = ["Shah Md. Mahi <shahmdmahi15@gmail.com>"]
+description = "Ultra-High-Throughput Multi-Path P2P Content-Defined Mesh File & Stream Fabric"
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/shahmdmahi15/omnidrop"
+keywords = ["p2p", "mesh", "fastcdc", "blake3", "file-sharing"]
+categories = ["network-programming", "command-line-utilities"]
+
+[lib]
+name = "omnidrop"
+path = "src/lib.rs"
+
+[[bin]]
+name = "omnidrop"
+path = "src/bin/main.rs"
+
+[dependencies]
+tokio = { version = "1.40", features = ["full"] }
+blake3 = "1.5"
+bytes = { version = "1.7", features = ["serde"] }
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"
+rand = "0.8"
+crc32fast = "1.4"
+thiserror = "1.0"
+chacha20poly1305 = "0.10"
+x25519-dalek = { version = "2.0", features = ["static_secrets"] }
+zeroize = { version = "1.8", features = ["derive"] }
+
+[dev-dependencies]
+tempfile = "3.12"

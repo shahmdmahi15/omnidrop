@@ -1,0 +1,14 @@
+/target
+**/*.rs.bk
+
+# Node / Next.js
+website/node_modules/
+website/.next/
+website/out/
+website/.pnpm-debug.log*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
