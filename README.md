@@ -7,6 +7,7 @@
 <p align="center">
   <a href="https://github.com/shahmdmahi15/omnidrop/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/shahmdmahi15/omnidrop/ci.yml?branch=master&style=for-the-badge&logo=github&label=Multi-OS%20CI" alt="CI Status" /></a>
   <a href="https://crates.io/crates/omnidrop"><img src="https://img.shields.io/crates/v/omnidrop.svg?style=for-the-badge&color=orange&logo=rust" alt="crates.io" /></a>
+  <a href="https://omnidrop.shahmdmahi.dpdns.org/app"><img src="https://img.shields.io/badge/Live%20Web%20P2P-omnidrop.shahmdmahi.dpdns.org%2Fapp-00f0ff?style=for-the-badge&logo=webrtc&logoColor=white" alt="Live Web P2P Drop" /></a>
   <a href="https://github.com/shahmdmahi15/omnidrop/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT License" /></a>
   <a href="https://shahmdmahi.dpdns.org"><img src="https://img.shields.io/badge/Website-shahmdmahi.dpdns.org-00f0ff?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Author Portal" /></a>
 </p>
@@ -251,15 +252,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### 5.3 Web Fallback Gateway (iOS / Android / Browser)
+### 5.3 Zero-Install Web P2P (Live on Vercel & Mobile)
 
-Launch an embedded zero-install gateway for devices without the native CLI:
+Transfer files directly between your phone and PC **without installing anything**:
+
+- **Live In-Browser Web App:** Visit [https://omnidrop.shahmdmahi.dpdns.org/app](https://omnidrop.shahmdmahi.dpdns.org/app)
+- Scan the on-screen QR code from your phone camera (iOS/Android).
+- Peer-to-peer WebRTC DTLS/SCTP data connection pairs instantly.
+- Drag & drop any file, photo, or video to stream directly over the local network or internet at wire speed. Zero cloud storage, infinite file sizes.
+
+For running a dedicated local LAN fallback gateway directly from your workstation:
 
 ```bash
 omnidrop web --port 8080
 ```
 
-Open `http://<your-local-ip>:8080` on any mobile browser (Safari, Chrome) to drag-and-drop send or receive files over LAN at wire speed.
+Open `http://<your-local-ip>:8080` on any browser to send or receive files over LAN.
 
 ### 5.4 Docker Deployment
 

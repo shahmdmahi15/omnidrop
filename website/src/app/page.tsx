@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Wifi,
   Network,
@@ -146,6 +147,13 @@ export default function Home() {
           </div>
 
           <nav className="hidden md:flex items-center gap-6 text-sm text-slate-300">
+            <Link
+              href="/app"
+              className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30"
+            >
+              <Radio className="w-3.5 h-3.5 animate-pulse text-cyan-400" />
+              <span>Live Web Drop</span>
+            </Link>
             <a href="#simulator" className="hover:text-cyan-400 transition-colors">
               P2P Simulator
             </a>
@@ -205,16 +213,24 @@ export default function Home() {
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-4 mb-14">
+              <Link
+                href="/app"
+                className="px-7 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-400 via-sky-400 to-purple-500 text-slate-950 hover:from-cyan-300 hover:to-purple-400 transition-all shadow-xl shadow-cyan-500/30 flex items-center gap-2.5 group transform hover:scale-[1.02]"
+              >
+                <Radio className="w-4 h-4 animate-pulse" />
+                <span>Launch Real OmniDrop Web (Phone to PC)</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
               <a
                 href="#simulator"
-                className="px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 hover:from-cyan-400 hover:to-blue-500 transition-all shadow-lg shadow-cyan-500/25 flex items-center gap-2"
+                className="px-5 py-3.5 rounded-xl font-semibold text-sm bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-cyan-500/50 transition-all flex items-center gap-2"
               >
-                <Zap className="w-4 h-4 fill-current" />
-                Launch P2P Simulator
+                <Zap className="w-4 h-4 fill-current text-cyan-400" />
+                Architecture Simulator
               </a>
               <a
                 href="#api-explorer"
-                className="px-6 py-3 rounded-xl font-semibold text-sm bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-cyan-500/50 transition-all flex items-center gap-2"
+                className="px-5 py-3.5 rounded-xl font-semibold text-sm bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-cyan-500/50 transition-all flex items-center gap-2"
               >
                 <Terminal className="w-4 h-4 text-cyan-400" />
                 CLI Quickstart
