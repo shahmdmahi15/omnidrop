@@ -1,28 +1,76 @@
 @import "tailwindcss";
 
 :root {
-  --background: #070b13;
+  --background: #050811;
   --foreground: #f1f5f9;
   --accent-cyan: #00f0ff;
   --accent-purple: #7000ff;
+
+  /* Safe Area Insets defaults */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+}
+
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
   overflow-x: hidden;
+  min-height: 100%;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ----------------- Safe Area Insets (iOS Notch, Dynamic Island, iPadOS, Android) ----------------- */
+.safe-top {
+  padding-top: max(var(--sat), 0.75rem);
+}
+
+.safe-bottom {
+  padding-bottom: max(var(--sab), 1rem);
+}
+
+.safe-left {
+  padding-left: max(var(--sal), 1rem);
+}
+
+.safe-right {
+  padding-right: max(var(--sar), 1rem);
+}
+
+.safe-container {
+  padding-top: max(var(--sat), 1rem);
+  padding-bottom: max(var(--sab), 1.5rem);
+  padding-left: max(var(--sal), 1rem);
+  padding-right: max(var(--sar), 1rem);
+}
+
+/* Standalone PWA adjustments (Home Screen App Mode) */
+@media all and (display-mode: standalone) {
+  .pwa-header-spacer {
+    padding-top: max(var(--sat), 1rem);
+  }
+  .pwa-bottom-spacer {
+    padding-bottom: max(var(--sab), 1.5rem);
+  }
 }
 
 /* Glassmorphism Cards */
 .glass-panel {
-  background: rgba(13, 20, 36, 0.7);
+  background: rgba(9, 14, 26, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(0, 240, 255, 0.15);
 }
 
 .glass-panel-glow {
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(15, 23, 42, 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(0, 240, 255, 0.25);
@@ -38,7 +86,7 @@ body {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #070b13;
+  background: #050811;
 }
 ::-webkit-scrollbar-thumb {
   background: #1e293b;

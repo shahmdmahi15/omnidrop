@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -11,6 +11,18 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover", // Critical for iOS notch, Dynamic Island, iPadOS home bar, Android gesture nav
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#050811" },
+    { media: "(prefers-color-scheme: light)", color: "#06b6d4" },
+  ],
+};
 
 export const metadata: Metadata = {
   title: "OmniDrop | 2.5 Gbps Multi-Path P2P Content-Defined Mesh File Fabric",
@@ -27,6 +39,7 @@ export const metadata: Metadata = {
     "LocalSend alternative",
     "Rust networking",
     "Shah Md. Mahi",
+    "PWA",
   ],
   authors: [{ name: "Shah Md. Mahi", url: "https://shahmdmahi.dpdns.org" }],
   creator: "Shah Md. Mahi",
@@ -34,6 +47,16 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://omnidrop.shahmdmahi.dpdns.org"),
   alternates: {
     canonical: "https://omnidrop.shahmdmahi.dpdns.org",
+  },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "OmniDrop",
+    startupImage: ["/og-banner.png"],
+  },
+  formatDetection: {
+    telephone: false,
   },
   openGraph: {
     title: "OmniDrop | Ultra-High-Throughput Multi-Path P2P Mesh Fabric",
@@ -43,7 +66,7 @@ export const metadata: Metadata = {
     siteName: "OmniDrop",
     images: [
       {
-        url: "/og-banner.svg",
+        url: "/og-banner.png",
         width: 1200,
         height: 630,
         alt: "OmniDrop P2P Mesh Fabric Banner",
@@ -57,8 +80,17 @@ export const metadata: Metadata = {
     title: "OmniDrop | 2.5 Gbps Multi-Path P2P File Fabric",
     description:
       "Zero-cloud, high-speed multi-path P2P file transport between PC, Mac, Linux, Android, and iOS.",
-    images: ["/og-banner.svg"],
+    images: ["/og-banner.png"],
     creator: "@shahmdmahi",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
+    "msapplication-TileColor": "#050811",
+    "msapplication-TileImage": "/android-chrome-512x512.png",
+    "msapplication-navbutton-color": "#06b6d4",
+    "application-name": "OmniDrop",
   },
 };
 
@@ -117,12 +149,34 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3" />
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="OmniDrop" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(
+                    function(reg) {
+                      console.log('OmniDrop PWA active:', reg.scope);
+                    },
+                    function(err) {
+                      console.warn('PWA registration:', err);
+                    }
+                  );
+                });
+              }
+            `,
+          }}
+        />
       </head>
-      <body className="min-h-full flex flex-col bg-[#070b13] text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200">
+      <body className="min-h-full flex flex-col bg-[#050811] text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200">
         {children}
       </body>
     </html>

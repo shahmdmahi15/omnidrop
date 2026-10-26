@@ -110,6 +110,15 @@ export default function Home() {
   };
 
   useEffect(() => {
+    // If running in standalone PWA mode, automatically route straight to /app
+    if (typeof window !== "undefined") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone === true;
+      if (isStandalone && window.location.pathname === "/") {
+        window.location.replace("/app");
+      }
+    }
+
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };

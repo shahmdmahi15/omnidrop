@@ -38,6 +38,8 @@ import {
   ShieldCheck,
   Send,
   X,
+  PlusCircle,
+  DownloadCloud,
 } from "lucide-react";
 import AuthorSection from "./AuthorSection";
 
@@ -52,22 +54,30 @@ function formatBytes(bytes: number, decimals = 2): string {
 }
 
 // Helper: Detect Device Info
-function detectDeviceInfo(): { type: "mobile" | "desktop" | "tablet"; name: string } {
+function detectDeviceInfo(): { type: "mobile" | "desktop" | "tablet"; name: string; platform: string } {
   if (typeof window === "undefined" || !navigator) {
-    return { type: "desktop", name: "Web Browser" };
+    return { type: "desktop", name: "Web Browser", platform: "Web" };
   }
   const ua = navigator.userAgent;
   let type: "mobile" | "desktop" | "tablet" = "desktop";
-  let os = "Linux/Windows";
+  let platform = "Desktop";
 
-  if (/Mobi|Android/i.test(ua)) type = "mobile";
-  if (/iPad|Tablet/i.test(ua)) type = "tablet";
-
-  if (/iPhone|iPad|iPod/i.test(ua)) os = "iOS";
-  else if (/Android/i.test(ua)) os = "Android";
-  else if (/Mac/i.test(ua)) os = "macOS";
-  else if (/Win/i.test(ua)) os = "Windows";
-  else if (/Linux/i.test(ua)) os = "Linux";
+  if (/iPad|Tablet/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
+    type = "tablet";
+    platform = "iPadOS";
+  } else if (/iPhone|iPod/i.test(ua)) {
+    type = "mobile";
+    platform = "iOS";
+  } else if (/Android/i.test(ua)) {
+    type = "mobile";
+    platform = "Android";
+  } else if (/Mac/i.test(ua)) {
+    platform = "macOS";
+  } else if (/Win/i.test(ua)) {
+    platform = "Windows";
+  } else if (/Linux/i.test(ua)) {
+    platform = "Linux";
+  }
 
   let browser = "Browser";
   if (/Chrome|CriOS/i.test(ua) && !/Edge|Edg|OPR/i.test(ua)) browser = "Chrome";
@@ -75,13 +85,14 @@ function detectDeviceInfo(): { type: "mobile" | "desktop" | "tablet"; name: stri
   else if (/Firefox|FxiOS/i.test(ua)) browser = "Firefox";
   else if (/Edg/i.test(ua)) browser = "Edge";
 
-  return { type, name: `${browser} on ${os}` };
+  return { type, name: `${browser} on ${platform}`, platform };
 }
 
 // Synthesize pleasant sound cue
 function playSound(type: "connect" | "complete" | "receive") {
   try {
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AudioContextClass =
+      window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextClass) return;
     const ctx = new AudioContextClass();
     const osc = ctx.createOscillator();
@@ -174,10 +185,25 @@ export default function RealWebDrop() {
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
 
   // Peer & Connection state
-  const [myDeviceInfo, setMyDeviceInfo] = useState<{ type: string; name: string }>({ type: "desktop", name: "Loading..." });
-  const [peerStatus, setPeerStatus] = useState<"initializing" | "ready" | "connecting" | "connected" | "error">("initializing");
-  const [remoteDeviceInfo, setRemoteDeviceInfo] = useState<{ type: string; name: string } | null>(null);
+  const [myDeviceInfo, setMyDeviceInfo] = useState<{ type: string; name: string; platform: string }>({
+    type: "desktop",
+    name: "Detecting System...",
+    platform: "Web",
+  });
+  const [peerStatus, setPeerStatus] = useState<"initializing" | "ready" | "connecting" | "connected" | "error">(
+    "initializing"
+  );
+  const [remoteDeviceInfo, setRemoteDeviceInfo] = useState<{ type: string; name: string; platform: string } | null>(
+    null
+  );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // PWA & Standalone State
+  const [isStandalone, setIsStandalone] = useState<boolean>(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showIosInstallModal, setShowIosInstallModal] = useState<boolean>(false);
+  const [isIosDevice, setIsIosDevice] = useState<boolean>(false);
 
   // Active transfers and messages
   const [transfers, setTransfers] = useState<TransferItem[]>([]);
@@ -191,12 +217,32 @@ export default function RealWebDrop() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activeConnRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const receivingBuffers = useRef<Map<string, { chunks: ArrayBuffer[]; totalChunks: number; meta: any; receivedBytes: number; lastTime: number }>>(new Map());
+  const receivingBuffers = useRef<
+    Map<string, { chunks: ArrayBuffer[]; totalChunks: number; meta: any; receivedBytes: number; lastTime: number }>
+  >(new Map());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 1. Initialize Device Detection
+  // 1. Initialize Device Detection & PWA Standalone Status
   useEffect(() => {
-    setMyDeviceInfo(detectDeviceInfo());
+    const devInfo = detectDeviceInfo();
+    setMyDeviceInfo(devInfo);
+
+    if (typeof window !== "undefined") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const standalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone === true;
+      setIsStandalone(standalone);
+
+      const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      setIsIosDevice(isIos);
+
+      const handleBeforeInstall = (e: Event) => {
+        e.preventDefault();
+        setDeferredPrompt(e);
+      };
+
+      window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+      return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+    }
   }, []);
 
   // 2. Room Code Resolution
@@ -355,7 +401,7 @@ export default function RealWebDrop() {
           receivingBuffers.current.delete(data.fileId);
           playSound("complete");
 
-          // Auto-trigger browser download for smooth experience
+          // Auto-trigger browser download for seamless experience
           const a = document.createElement("a");
           a.href = downloadUrl;
           a.download = bufferInfo.meta.name;
@@ -430,11 +476,9 @@ export default function RealWebDrop() {
 
         peer.on("error", (err: unknown) => {
           console.warn("PeerJS Notification:", err);
-          // If ID is taken, likely already hosting
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const pErr = err as any;
           if (pErr.type === "unavailable-id") {
-            // Room is occupied or we are guest trying to connect
             setPeerStatus("connecting");
             const guestPeer = new Peer({
               config: {
@@ -647,11 +691,28 @@ export default function RealWebDrop() {
     }
   };
 
+  // PWA Install trigger
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        setDeferredPrompt(null);
+      }
+    } else if (isIosDevice) {
+      setShowIosInstallModal(true);
+    } else {
+      alert(
+        "To install OmniDrop as a native app:\n1. Click browser settings (⋮ or ⊕)\n2. Select 'Install OmniDrop' or 'Add to Home screen'"
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#050811] text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200">
-      {/* ----------------- Top Header ----------------- */}
-      <header className="sticky top-0 z-50 w-full glass-panel border-b border-cyan-500/20 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      {/* ----------------- Top Header (Safezone Aware) ----------------- */}
+      <header className="sticky top-0 z-50 w-full glass-panel border-b border-cyan-500/20 backdrop-blur-md pt-[max(env(safe-area-inset-top,0px),0.5rem)] px-[max(env(safe-area-inset-left,0px),0.75rem)] transition-all">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 p-0.5 shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform">
@@ -661,36 +722,54 @@ export default function RealWebDrop() {
               </div>
               <div>
                 <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">
-                  OmniDrop Web
+                  OmniDrop PWA
                 </span>
-                <span className="hidden sm:inline-block ml-2 px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/30">
-                  Real WebRTC P2P
+                <span className="hidden sm:inline-block ml-2 px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/30 font-mono">
+                  {isStandalone ? "⚡ Native App" : "WebRTC Direct"}
                 </span>
               </div>
             </Link>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Install PWA Button / Indicator */}
+            {!isStandalone ? (
+              <button
+                onClick={handleInstallClick}
+                className="text-xs px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 border border-cyan-500/40 text-cyan-300 font-medium flex items-center gap-1.5 transition-all shadow-sm"
+                title="Install OmniDrop as a Native App on your device"
+              >
+                <DownloadCloud className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+                <span className="hidden xs:inline">Install App</span>
+                <span className="xs:hidden">Install</span>
+              </button>
+            ) : (
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-[11px] font-mono text-emerald-400">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Installed PWA</span>
+              </div>
+            )}
+
             <Link
               href="/"
-              className="text-xs text-slate-400 hover:text-cyan-300 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700/50 hover:border-cyan-500/30 transition-all"
+              className="text-xs text-slate-400 hover:text-cyan-300 flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-slate-700/50 hover:border-cyan-500/30 transition-all"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Docs</span>
+              <span className="hidden sm:inline">Docs</span>
             </Link>
 
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/40 text-xs text-cyan-300 font-mono">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/40 text-xs text-cyan-300 font-mono">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-              <span>Room: {roomCode || "..."}</span>
+              <span>{roomCode || "..."}</span>
             </div>
           </div>
         </div>
       </header>
 
-      {/* ----------------- Main Workspace ----------------- */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
-        {/* Connection Status Banner */}
-        <div className="glass-panel p-4 rounded-2xl border border-cyan-500/20 bg-slate-900/60 backdrop-blur-md flex flex-col md:flex-row items-center justify-between gap-4">
+      {/* ----------------- Main Workspace (Safezone Container) ----------------- */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 safe-container flex flex-col gap-6">
+        {/* Device & PWA Status Bar */}
+        <div className="pwa-header-spacer glass-panel p-4 rounded-2xl border border-cyan-500/20 bg-slate-900/60 backdrop-blur-md flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 w-full md:w-auto">
             <div
               className={`w-11 h-11 rounded-xl flex items-center justify-center border shadow-lg ${
@@ -732,22 +811,26 @@ export default function RealWebDrop() {
                 </span>
               </div>
 
-              <p className="text-xs text-slate-400 mt-0.5">
-                {peerStatus === "connected"
-                  ? `Zero server storage. Files stream directly between your ${myDeviceInfo.name} and ${remoteDeviceInfo?.name}.`
-                  : "Open this page on your phone or scan the QR code to transfer files instantly without installing anything."}
-              </p>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400 mt-0.5">
+                <span>
+                  Host: <strong className="text-cyan-300">{myDeviceInfo.name}</strong>
+                </span>
+                <span>•</span>
+                <span>
+                  Safezone: <span className="text-emerald-400 font-mono">Active (iOS/Android/Desktop)</span>
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Quick Stats or Actions */}
+          {/* Quick Actions */}
           <div className="flex items-center gap-2 w-full md:w-auto justify-end">
             <button
               onClick={copyShareLink}
               className="text-xs px-3 py-2 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-500/30 flex items-center gap-1.5 transition-all shadow-sm"
             >
               {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
-              <span>{copiedLink ? "Link Copied!" : "Copy Drop Link"}</span>
+              <span>{copiedLink ? "Link Copied!" : "Share Link"}</span>
             </button>
 
             <button
@@ -776,7 +859,7 @@ export default function RealWebDrop() {
         )}
 
         {/* ----------------- Grid: Pairing & File Drop ----------------- */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
           {/* Left Column: QR Code & Pairing */}
           <div className="lg:col-span-5 flex flex-col gap-6">
             {/* QR Pairing Card */}
@@ -788,7 +871,7 @@ export default function RealWebDrop() {
 
               <h2 className="text-xl font-bold text-slate-100">Pair Instantly</h2>
               <p className="text-xs text-slate-400 mt-1 max-w-xs">
-                Point your phone camera at this QR code. Both devices connect directly over WebRTC.
+                Point your phone camera (iOS / iPadOS / Android) at this QR code. Both devices connect directly over WebRTC.
               </p>
 
               {/* QR Image Box */}
@@ -1097,10 +1180,65 @@ export default function RealWebDrop() {
         <AuthorSection />
       </main>
 
-      {/* ----------------- Bottom Footer ----------------- */}
-      <footer className="w-full border-t border-slate-800/80 py-6 text-center text-xs text-slate-500">
+      {/* ----------------- iOS Add to Home Screen Instructions Modal ----------------- */}
+      {showIosInstallModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="glass-panel p-6 rounded-3xl border border-cyan-500/30 bg-[#090e1a] max-w-sm w-full flex flex-col gap-4 text-center relative shadow-2xl">
+            <button
+              onClick={() => setShowIosInstallModal(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-full bg-slate-800 text-slate-400 hover:text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 flex items-center justify-center mx-auto">
+              <Smartphone className="w-6 h-6" />
+            </div>
+
+            <h3 className="text-lg font-bold text-slate-100">Install on iPhone / iPad</h3>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Install OmniDrop as a standalone app with full screen view and zero browser bars:
+            </p>
+
+            <div className="flex flex-col gap-3 text-left text-xs bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+              <div className="flex items-center gap-3">
+                <span className="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-xs">
+                  1
+                </span>
+                <span>
+                  Tap the <strong className="text-cyan-300">Share button</strong> (box with arrow) at the bottom or top of Safari.
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-xs">
+                  2
+                </span>
+                <span>
+                  Scroll down and tap <strong className="text-cyan-300">Add to Home Screen</strong>.
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-xs">
+                  3
+                </span>
+                <span>Tap <strong className="text-emerald-400">Add</strong>. Open OmniDrop directly from your home screen!</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowIosInstallModal(false)}
+              className="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-colors"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ----------------- Bottom Footer (Safezone Aware) ----------------- */}
+      <footer className="w-full border-t border-slate-800/80 py-6 pb-[max(env(safe-area-inset-bottom,0px),1.5rem)] px-[max(env(safe-area-inset-left,0px),1rem)] text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>© {new Date().getFullYear()} OmniDrop — Architected by Shah Md. Mahi</p>
+          <p>© {new Date().getFullYear()} OmniDrop PWA — Architected by Shah Md. Mahi</p>
           <div className="flex items-center gap-4 text-xs font-mono">
             <Link href="/" className="hover:text-cyan-400 transition-colors">Documentation</Link>
             <a href="https://github.com/shahmdmahi15/omnidrop" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">GitHub</a>
